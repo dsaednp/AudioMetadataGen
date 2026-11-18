@@ -28,6 +28,9 @@ cargo build --release
 
 # 安装到 ~/.cargo/bin
 cargo install --path .
+
+# 安装到自定义目录
+cargo install --path . --root ~/.cargo/self
 ```
 
 构建产物为 `target/release/audiomd`。
@@ -40,17 +43,28 @@ audiomd .
 
 # 扫描指定目录
 audiomd /path/to/audiobooks
+
+# 强制覆盖已存在的 metadata.json
+audiomd -f /path/to/audiobooks
 ```
+
+可用选项：
+
+- `-f` / `--force`：即使目录中已存在 `metadata.json` 也重新生成并覆盖。
+- `-h` / `--help`：显示帮助信息。
+
+默认情况下，**已存在 `metadata.json` 的目录会被跳过**，不会被重新解析。
 
 示例输出：
 
 ```text
 开始扫描目录: /path/to/audiobooks
 扫描完成，共发现 12 个有声书目录
-全部处理完成！总耗时: 1.23s
+跳过 3 个已存在 metadata.json 的目录（使用 -f/--force 可强制覆盖）
+全部处理完成！已生成 9 个 metadata.json，跳过 3 个，总耗时: 1.23s
 ```
 
-每个检测到音频文件的目录下会生成（或覆盖）一个 `metadata.json`：
+每个检测到音频文件的目录下会生成一个 `metadata.json`：
 
 ```text
 有声书根目录/
@@ -69,7 +83,7 @@ audiomd /path/to/audiobooks
 - **不**读取 `.gitignore` / `.ignore`，目录下的所有非隐藏音频都会被扫描。
 - **不**跟随符号链接。
 - 同一目录内的音频按文件名自然排序，并以此顺序生成 `episodes` 的 `id`（从 1 开始）。
-- 若目录中已存在 `metadata.json`，会被直接覆盖。
+- 若目录中已存在 `metadata.json`，**默认跳过该目录**；需要重新生成时加 `-f` / `--force`。
 - 单个文件解析失败不会中断整体流程，该集时长记为 `0.0`，标题回退为文件名（不含扩展名）。
 
 ## 输出格式
